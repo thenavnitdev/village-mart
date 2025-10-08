@@ -1,0 +1,2 @@
+// Auth slice (placeholder)
+export {};

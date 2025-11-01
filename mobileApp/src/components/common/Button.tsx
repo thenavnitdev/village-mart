@@ -1,6 +1,14 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle } from 'react-native';
-import { colors } from '../../theme';
+import { Text, StyleSheet, ActivityIndicator, ViewStyle, TextStyle, TouchableOpacity } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withSequence,
+} from 'react-native-reanimated';
+import { useTheme } from '../../context/ThemeContext';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface ButtonProps {
   title: string;
@@ -23,34 +31,64 @@ const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
-  const buttonStyle = [
-    styles.button,
-    styles[variant],
-    styles[size],
-    disabled && styles.disabled,
-    style,
-  ];
+  const { theme } = useTheme();
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
 
-  const buttonTextStyle = [
-    styles.text,
-    styles[`${variant}Text`],
-    styles[`${size}Text`],
-    textStyle,
-  ];
+  React.useEffect(() => {
+    opacity.value = disabled ? 0.5 : 1;
+  }, [disabled]);
+
+  const handlePress = () => {
+    if (!disabled && !loading) {
+      scale.value = withSequence(
+        withSpring(0.95, { damping: 15, stiffness: 300 }),
+        withSpring(1, { damping: 15, stiffness: 300 })
+      );
+      onPress();
+    }
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  const getButtonStyle = () => {
+    const baseStyle = [styles.button, styles[size], disabled && styles.disabled, style];
+    
+    if (variant === 'primary') {
+      return [...baseStyle, { backgroundColor: theme.colors.primary }];
+    } else if (variant === 'secondary') {
+      return [...baseStyle, { backgroundColor: theme.colors.secondary }];
+    } else {
+      return [...baseStyle, { borderColor: theme.colors.primary }];
+    }
+  };
+
+  const getTextStyle = () => {
+    const baseStyle = [styles.text, styles[`${size}Text`], textStyle];
+    
+    if (variant === 'outline') {
+      return [...baseStyle, { color: theme.colors.primary }];
+    } else {
+      return [...baseStyle, { color: theme.colors.textLight }];
+    }
+  };
 
   return (
-    <TouchableOpacity
-      style={buttonStyle}
-      onPress={onPress}
+    <AnimatedTouchable
+      style={[getButtonStyle(), animatedStyle]}
+      onPress={handlePress}
       disabled={disabled || loading}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? colors.text.light : colors.primary[500]} />
+        <ActivityIndicator color={variant === 'primary' ? theme.colors.textLight : theme.colors.primary} />
       ) : (
-        <Text style={buttonTextStyle}>{title}</Text>
+        <Text style={getTextStyle()}>{title}</Text>
       )}
-    </TouchableOpacity>
+    </AnimatedTouchable>
   );
 };
 
@@ -61,16 +99,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
   },
-  primary: {
-    backgroundColor: colors.primary[500],
-  },
-  secondary: {
-    backgroundColor: colors.secondary[500],
-  },
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.primary[500],
   },
   small: {
     paddingHorizontal: 12,
@@ -92,15 +123,6 @@ const styles = StyleSheet.create({
   },
   text: {
     fontWeight: '600',
-  },
-  primaryText: {
-    color: colors.text.light,
-  },
-  secondaryText: {
-    color: colors.text.light,
-  },
-  outlineText: {
-    color: colors.primary[500],
   },
   smallText: {
     fontSize: 14,

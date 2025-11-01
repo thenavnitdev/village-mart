@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 import IconButton from './IconButton';
 
 interface HeaderProps {
@@ -24,18 +24,21 @@ const Header: React.FC<HeaderProps> = ({
   onRightPress,
   showBackButton = false,
   onBackPress,
-  backgroundColor = colors.primary[500],
-  titleColor = colors.text.light,
+  backgroundColor,
+  titleColor,
 }) => {
+  const { theme } = useTheme();
   const insets = useSafeAreaInsets();
+  const headerBgColor = backgroundColor || theme.colors.primary;
+  const headerTitleColor = titleColor || theme.colors.textLight;
 
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor={backgroundColor} />
+      <StatusBar barStyle="light-content" backgroundColor={headerBgColor} />
       <View
         style={[
           styles.container,
-          { backgroundColor, paddingTop: insets.top },
+          { backgroundColor: headerBgColor, paddingTop: insets.top },
         ]}
       >
         <View style={styles.content}>
@@ -57,7 +60,7 @@ const Header: React.FC<HeaderProps> = ({
             />
           )}
           {title && (
-            <Text style={[styles.title, { color: titleColor }]} numberOfLines={1}>
+            <Text style={[styles.title, { color: headerTitleColor }]} numberOfLines={1}>
               {title}
             </Text>
           )}

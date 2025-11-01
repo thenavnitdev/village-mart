@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   USER_DATA: 'userData',
   LANGUAGE: 'language',
   THEME: 'theme',
+  COLOR_SCHEME: 'colorScheme',
   CART: 'cart',
 };
 

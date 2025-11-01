@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { colors } from '../../theme';
-import IconButton from './IconButton';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import { useTheme } from '../../context/ThemeContext';
+import { getGlassmorphismStyle } from '../../theme/glassmorphism';
 
 interface SearchBarProps {
   value: string;
@@ -22,31 +23,33 @@ const SearchBar: React.FC<SearchBarProps> = ({
   showCancelButton = false,
   onCancel,
 }) => {
+  const { theme } = useTheme();
+  
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
+    <Animated.View entering={FadeIn.duration(200)} style={styles.container}>
+      <View style={[styles.searchContainer, { backgroundColor: theme.colors.primaryLight }]}>
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: theme.colors.text }]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={colors.text.muted}
+          placeholderTextColor={theme.colors.textMuted}
           returnKeyType="search"
           onSubmitEditing={onSearch}
         />
         {value.length > 0 && (
-          <TouchableOpacity onPress={onClear} style={styles.clearButton}>
+          <TouchableOpacity onPress={onClear || (() => onChangeText(''))} style={styles.clearButton}>
             <Text style={styles.clearIcon}>✕</Text>
           </TouchableOpacity>
         )}
       </View>
       {showCancelButton && (
         <TouchableOpacity onPress={onCancel} style={styles.cancelButton}>
-          <Text style={styles.cancelText}>Cancel</Text>
+          <Text style={[styles.cancelText, { color: theme.colors.primary }]}>Cancel</Text>
         </TouchableOpacity>
       )}
-    </View>
+    </Animated.View>
   );
 };
 
@@ -54,18 +57,20 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: colors.background.light,
   },
   searchContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.neutral[100],
-    borderRadius: 8,
+    borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingVertical: 12,
+    borderWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   searchIcon: {
     fontSize: 18,
@@ -74,15 +79,14 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: colors.text.primary,
     padding: 0,
   },
   clearButton: {
     padding: 4,
+    marginLeft: 4,
   },
   clearIcon: {
     fontSize: 16,
-    color: colors.text.muted,
   },
   cancelButton: {
     paddingLeft: 12,
@@ -90,7 +94,6 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: 16,
-    color: colors.primary[500],
     fontWeight: '600',
   },
 });

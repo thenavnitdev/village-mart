@@ -1,6 +1,14 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
-import { colors } from '../../theme';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withSequence,
+} from 'react-native-reanimated';
+import { useTheme } from '../../context/ThemeContext';
+
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 interface IconButtonProps {
   icon: string | React.ReactNode;
@@ -23,6 +31,8 @@ const IconButton: React.FC<IconButtonProps> = ({
   style,
   backgroundColor,
 }) => {
+  const { theme } = useTheme();
+  const scale = useSharedValue(1);
   const sizeStyles = {
     small: { width: 32, height: 32, borderRadius: 16 },
     medium: { width: 40, height: 40, borderRadius: 20 },
@@ -35,24 +45,46 @@ const IconButton: React.FC<IconButtonProps> = ({
     large: 24,
   };
 
+  const handlePress = () => {
+    if (!disabled && !loading) {
+      scale.value = withSequence(
+        withSpring(0.85, { damping: 12, stiffness: 300 }),
+        withSpring(1, { damping: 12, stiffness: 300 })
+      );
+      onPress();
+    }
+  };
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const getButtonStyle = () => {
+    const baseStyle = [styles.button, sizeStyles[size], disabled && styles.disabled, backgroundColor && { backgroundColor }, style];
+    
+    if (variant === 'primary') {
+      return [...baseStyle, { backgroundColor: backgroundColor || theme.colors.primary }];
+    } else if (variant === 'outline') {
+      return [...baseStyle, { borderColor: theme.colors.border }];
+    } else {
+      return [...baseStyle, { backgroundColor: theme.colors.backgroundSecondary }];
+    }
+  };
+
   return (
-    <TouchableOpacity
+    <AnimatedTouchable
       style={[
-        styles.button,
-        sizeStyles[size],
-        styles[variant],
-        disabled && styles.disabled,
-        backgroundColor && { backgroundColor },
-        style,
+        getButtonStyle(),
+        animatedStyle,
       ]}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled || loading}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'primary' ? colors.text.light : colors.primary[500]}
+          color={variant === 'primary' ? theme.colors.textLight : theme.colors.primary}
         />
       ) : (
         <>
@@ -63,7 +95,7 @@ const IconButton: React.FC<IconButtonProps> = ({
           )}
         </>
       )}
-    </TouchableOpacity>
+    </AnimatedTouchable>
   );
 };
 
@@ -73,16 +105,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden',
   },
-  default: {
-    backgroundColor: colors.neutral[100],
-  },
-  primary: {
-    backgroundColor: colors.primary[500],
-  },
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: colors.neutral[300],
   },
   disabled: {
     opacity: 0.5,

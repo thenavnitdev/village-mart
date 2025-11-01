@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { colors } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
+import { getGlassmorphismStyle } from '../../theme/glassmorphism';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -19,20 +22,43 @@ const Input: React.FC<InputProps> = ({
   style,
   ...props
 }) => {
+  const { theme, isDark } = useTheme();
+  const glassStyle = getGlassmorphismStyle(isDark, 'blue');
+
   return (
-    <View style={[styles.container, containerStyle]}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <View style={[styles.inputContainer, error && styles.inputContainerError]}>
+    <Animated.View entering={FadeIn.duration(300)} style={[styles.container, containerStyle]}>
+      {label && (
+        <Text style={[styles.label, { color: theme.colors.text }]}>{label}</Text>
+      )}
+      <Animated.View
+        style={[
+          styles.inputContainer,
+          glassStyle,
+          error && { borderColor: theme.colors.error },
+        ]}
+      >
         {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
         <TextInput
-          style={[styles.input, leftIcon && styles.inputWithLeftIcon, style]}
-          placeholderTextColor={colors.text.muted}
+          style={[
+            styles.input,
+            leftIcon && styles.inputWithLeftIcon,
+            { color: theme.colors.text },
+            style,
+          ]}
+          placeholderTextColor={theme.colors.textMuted}
           {...props}
         />
         {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
-      </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
-    </View>
+      </Animated.View>
+      {error && (
+        <Animated.Text
+          entering={FadeIn.duration(200)}
+          style={[styles.errorText, { color: theme.colors.error }]}
+        >
+          {error}
+        </Animated.Text>
+      )}
+    </Animated.View>
   );
 };
 
@@ -43,26 +69,19 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.text.primary,
     marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.neutral[300],
-    borderRadius: 8,
-    backgroundColor: colors.background.light,
-  },
-  inputContainerError: {
-    borderColor: colors.error,
+    borderRadius: 16,
+    paddingHorizontal: 4,
   },
   input: {
     flex: 1,
     paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingVertical: 14,
     fontSize: 16,
-    color: colors.text.primary,
   },
   inputWithLeftIcon: {
     paddingLeft: 8,
@@ -75,7 +94,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
-    color: colors.error,
     marginTop: 4,
   },
 });

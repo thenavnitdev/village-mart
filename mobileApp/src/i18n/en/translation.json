@@ -27,7 +27,12 @@
   },
   "home": {
     "title": "Welcome to Village Mart",
-    "subtitle": "Your Local Marketplace"
+    "subtitle": "Your Local Marketplace",
+    "greeting": "Hello, {{name}}",
+    "searchPlaceholder": "Search products...",
+    "categories": "Categories",
+    "featuredProducts": "Featured Products",
+    "seeAll": "See All"
   },
   "products": {
     "title": "Products",

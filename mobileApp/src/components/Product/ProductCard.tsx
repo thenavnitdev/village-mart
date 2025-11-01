@@ -1,12 +1,22 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
-import { colors, lightTheme } from '../../theme';
+import { View, Text, Image, StyleSheet, Pressable, Dimensions, TouchableOpacity } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withSequence,
+  FadeInDown,
+} from 'react-native-reanimated';
+import { useTheme } from '../../context/ThemeContext';
 import { formatPrice } from '../../utils/formatPrice';
 import IconButton from '../common/IconButton';
 import Badge from '../common/Badge';
 import StarRating from '../common/StarRating';
 import Button from '../common/Button';
 import Card from '../common/Card';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const { width } = Dimensions.get('window');
 
 interface ProductCardProps {
   product: {
@@ -36,19 +46,112 @@ const ProductCard: React.FC<ProductCardProps> = ({
   variant = 'grid',
   isWishlisted = false,
 }) => {
-  const discountPercentage = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : 0;
+  const { theme } = useTheme();
+  const scale = useSharedValue(1);
+
+  const handlePress = () => {
+    scale.value = withSequence(
+      withSpring(0.96, { damping: 15, stiffness: 300 }),
+      withSpring(1, { damping: 15, stiffness: 300 })
+    );
+    onPress?.();
+  };
+
+  const animatedCardStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
 
   if (variant === 'list') {
     return (
-      <Card style={styles.listCard}>
-        <Pressable onPress={onPress} style={styles.listContainer}>
-          <View style={styles.listImageContainer}>
-            <Image source={{ uri: product.image }} style={styles.listImage} />
+      <Animated.View entering={FadeInDown.delay(100).springify()}>
+        <Card style={styles.listCard}>
+          <AnimatedPressable
+            onPress={handlePress}
+            style={[styles.listContainer, animatedCardStyle]}
+          >
+            <View style={styles.listImageContainer}>
+              <Image source={{ uri: product.image }} style={styles.listImage} resizeMode="cover" />
+              {product.badge && (
+                <View style={styles.badgeContainer}>
+                  <View style={[styles.badge, { backgroundColor: theme.colors.primary }]}>
+                    <Text style={styles.badgeText}>{product.badge}</Text>
+                  </View>
+                </View>
+              )}
+              <TouchableOpacity
+                style={styles.wishlistButton}
+                onPress={onAddToWishlist}
+              >
+                <View style={styles.heartIcon}>
+                  <Text style={styles.heartIconText}>{isWishlisted ? '❤️' : '🤍'}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.listContent}>
+              <Text style={styles.listTitle} numberOfLines={2}>
+                {product.name}
+              </Text>
+
+              <View style={styles.ratingRow}>
+                <View style={styles.stars}>
+                  {[...Array(5)].map((_, i) => {
+                    const starValue = i + 1;
+                    const isFull = starValue <= Math.floor(product.rating);
+                    const isHalf = starValue === Math.ceil(product.rating) && product.rating % 1 >= 0.5;
+                    return (
+                      <Text key={i} style={[styles.star, !isFull && !isHalf && styles.starEmpty]}>
+                        {isFull ? '⭐' : isHalf ? '✨' : '⭐'}
+                      </Text>
+                    );
+                  })}
+                </View>
+                <Text style={styles.ratingText}>({product.rating.toFixed(1)})</Text>
+                <Text style={styles.reviewsText}>{product.reviews} reviews</Text>
+              </View>
+
+              <View style={styles.listPriceContainer}>
+                <Text style={[styles.listPrice, { color: theme.colors.primary }]}>{formatPrice(product.price)}</Text>
+                {product.originalPrice && (
+                  <Text style={[styles.listOriginalPrice, { color: theme.colors.textMuted }]}>
+                    {formatPrice(product.originalPrice)}
+                  </Text>
+                )}
+              </View>
+
+              <TouchableOpacity style={[styles.addToCartButton, { backgroundColor: theme.colors.primary }]} onPress={onAddToCart}>
+                <Text style={styles.cartIcon}>🛒</Text>
+                <Text style={styles.addToCartText}>Add to Cart</Text>
+              </TouchableOpacity>
+            </View>
+          </AnimatedPressable>
+        </Card>
+      </Animated.View>
+    );
+  }
+
+  // Grid variant - 3 columns
+  return (
+    <Animated.View entering={FadeInDown.delay(100).springify()}>
+      <Card style={styles.gridCard}>
+        <AnimatedPressable onPress={handlePress} style={animatedCardStyle}>
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />
             {product.badge && (
-              <Badge text={product.badge} variant="primary" style={styles.badge} />
+              <View style={styles.badgeContainer}>
+                <View style={[styles.badge, { backgroundColor: theme.colors.primary }]}>
+                  <Text style={styles.badgeText}>{product.badge}</Text>
+                </View>
+              </View>
             )}
+            <TouchableOpacity
+              style={styles.wishlistButton}
+              onPress={onAddToWishlist}
+            >
+              <View style={styles.heartIcon}>
+                <Text style={styles.heartIconText}>{isWishlisted ? '❤️' : '🤍'}</Text>
+              </View>
+            </TouchableOpacity>
             {product.inStock === false && (
               <View style={styles.outOfStockOverlay}>
                 <Text style={styles.outOfStockText}>Out of Stock</Text>
@@ -56,150 +159,133 @@ const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </View>
 
-          <View style={styles.listContent}>
-            <View style={styles.listHeader}>
-              <View style={styles.listTitleContainer}>
-                <Text style={styles.listTitle} numberOfLines={2}>
-                  {product.name}
-                </Text>
-                {product.category && (
-                  <Text style={styles.listCategory}>{product.category}</Text>
-                )}
+          <View style={styles.content}>
+            <Text style={styles.name} numberOfLines={2}>
+              {product.name}
+            </Text>
+
+            <View style={styles.ratingRow}>
+              <View style={styles.stars}>
+                {[...Array(5)].map((_, i) => {
+                  const starValue = i + 1;
+                  const isFull = starValue <= Math.floor(product.rating);
+                  const isHalf = starValue === Math.ceil(product.rating) && product.rating % 1 >= 0.5;
+                  return (
+                    <Text key={i} style={[styles.star, !isFull && !isHalf && styles.starEmpty]}>
+                      {isFull ? '⭐' : isHalf ? '✨' : '⭐'}
+                    </Text>
+                  );
+                })}
               </View>
-              <IconButton
-                icon={isWishlisted ? '❤️' : '🤍'}
-                onPress={onAddToWishlist}
-                size="small"
-              />
+              <Text style={styles.ratingText}>({product.rating.toFixed(1)})</Text>
+              <Text style={styles.reviewsText}>{product.reviews} reviews</Text>
             </View>
 
-            <StarRating rating={product.rating} reviews={product.reviews} />
-
-            <View style={styles.listPriceContainer}>
-              <Text style={styles.listPrice}>{formatPrice(product.price)}</Text>
+            <View style={styles.priceContainer}>
+              <Text style={[styles.price, { color: theme.colors.primary }]}>{formatPrice(product.price)}</Text>
               {product.originalPrice && (
-                <>
-                  <Text style={styles.listOriginalPrice}>
-                    {formatPrice(product.originalPrice)}
-                  </Text>
-                  {discountPercentage > 0 && (
-                    <Badge text={`${discountPercentage}% OFF`} variant="success" size="small" />
-                  )}
-                </>
+                <Text style={[styles.originalPrice, { color: theme.colors.textMuted }]}>
+                  {formatPrice(product.originalPrice)}
+                </Text>
               )}
             </View>
 
-            <Button
-              title="Add to Cart"
-              onPress={onAddToCart}
-              variant="primary"
-              size="small"
-              disabled={product.inStock === false}
-            />
+            <TouchableOpacity style={[styles.addToCartButton, { backgroundColor: theme.colors.primary }]} onPress={onAddToCart}>
+              <Text style={styles.cartIcon}>🛒</Text>
+              <Text style={styles.addToCartText}>Add to Cart</Text>
+            </TouchableOpacity>
           </View>
-        </Pressable>
+        </AnimatedPressable>
       </Card>
-    );
-  }
-
-  return (
-    <Card style={styles.gridCard}>
-      <Pressable onPress={onPress}>
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: product.image }} style={styles.image} />
-          {product.badge && (
-            <Badge text={product.badge} variant="primary" style={styles.badge} />
-          )}
-          <View style={styles.wishlistButton}>
-            <IconButton
-              icon={isWishlisted ? '❤️' : '🤍'}
-              onPress={onAddToWishlist}
-              size="small"
-            />
-          </View>
-          {product.inStock === false && (
-            <View style={styles.outOfStockOverlay}>
-              <Text style={styles.outOfStockText}>Out of Stock</Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.content}>
-          <Text style={styles.name} numberOfLines={2}>
-            {product.name}
-          </Text>
-
-          <StarRating rating={product.rating} reviews={product.reviews} />
-
-          <View style={styles.priceContainer}>
-            <Text style={styles.price}>{formatPrice(product.price)}</Text>
-            {product.originalPrice && (
-              <>
-                <Text style={styles.originalPrice}>
-                  {formatPrice(product.originalPrice)}
-                </Text>
-                {discountPercentage > 0 && (
-                  <Text style={styles.discount}>{discountPercentage}% OFF</Text>
-                )}
-              </>
-            )}
-          </View>
-
-          <Button
-            title="Add to Cart"
-            onPress={onAddToCart}
-            variant="primary"
-            size="small"
-            disabled={product.inStock === false}
-          />
-        </View>
-      </Pressable>
-    </Card>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   gridCard: {
-    marginBottom: 16,
+    borderRadius: 12,
     overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
   },
   listCard: {
-    marginBottom: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   listContainer: {
     flexDirection: 'row',
   },
   imageContainer: {
     width: '100%',
-    height: 200,
+    height: 140,
     position: 'relative',
-    backgroundColor: colors.neutral[100],
+    backgroundColor: '#F9FAFB',
   },
   listImageContainer: {
-    width: 150,
-    height: 150,
+    width: 120,
+    height: 120,
     position: 'relative',
-    backgroundColor: colors.neutral[100],
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
   },
   listImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
   },
-  badge: {
+  badgeContainer: {
     position: 'absolute',
     top: 8,
     left: 8,
+    zIndex: 2,
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   wishlistButton: {
     position: 'absolute',
     top: 8,
     right: 8,
+    zIndex: 2,
+  },
+  heartIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  heartIconText: {
+    fontSize: 14,
   },
   outOfStockOverlay: {
     position: 'absolute',
@@ -207,94 +293,117 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 12,
   },
   outOfStockText: {
-    color: colors.text.light,
-    fontSize: 14,
-    fontWeight: '600',
-    backgroundColor: colors.error,
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+    backgroundColor: '#EF4444',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 4,
+    borderRadius: 6,
   },
   content: {
-    padding: 12,
+    padding: 6,
   },
   listContent: {
     flex: 1,
-    padding: 12,
+    padding: 8,
     justifyContent: 'space-between',
-  },
-  listHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  listTitleContainer: {
-    flex: 1,
-    marginRight: 8,
   },
   name: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: 8,
+    color: '#1F2937',
+    marginBottom: 2,
+    lineHeight: 16,
+    minHeight: 30,
   },
   listTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: 4,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 3,
+    lineHeight: 18,
   },
-  listCategory: {
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 3,
+    flexWrap: 'wrap',
+    gap: 3,
+  },
+  stars: {
+    flexDirection: 'row',
+    marginRight: 3,
+  },
+  star: {
     fontSize: 12,
-    color: colors.text.muted,
+  },
+  starEmpty: {
+    opacity: 0.3,
+  },
+  ratingText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginRight: 3,
+  },
+  reviewsText: {
+    fontSize: 11,
+    color: '#6B7280',
   },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
-    marginBottom: 8,
+    marginBottom: 4,
+    gap: 6,
   },
   listPriceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
-    marginBottom: 8,
+    marginBottom: 4,
+    gap: 6,
   },
   price: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.primary[500],
-    marginRight: 8,
+    fontSize: 15,
+    fontWeight: '700',
   },
   listPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.primary[500],
-    marginRight: 8,
+    fontSize: 17,
+    fontWeight: '700',
   },
   originalPrice: {
-    fontSize: 14,
-    color: colors.text.muted,
+    fontSize: 11,
     textDecorationLine: 'line-through',
-    marginRight: 8,
+    fontWeight: '500',
   },
   listOriginalPrice: {
-    fontSize: 14,
-    color: colors.text.muted,
+    fontSize: 13,
     textDecorationLine: 'line-through',
-    marginRight: 8,
+    fontWeight: '500',
   },
-  discount: {
+  addToCartButton: {
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+  },
+  cartIcon: {
+    fontSize: 14,
+  },
+  addToCartText: {
+    color: '#FFFFFF',
     fontSize: 12,
-    color: colors.success,
     fontWeight: '600',
   },
 });
 
 export default ProductCard;
-

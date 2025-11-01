@@ -1,16 +1,20 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { lightTheme, darkTheme, LightTheme, DarkTheme } from '../theme';
 import { storage } from '../utils/storage';
 import { STORAGE_KEYS } from '../constants';
+import { createColorSchemeTheme } from '../theme/colorSchemes';
 
 type ThemeMode = 'light' | 'dark' | 'system';
+type ColorSchemeId = 'sunset-orange' | 'royal-purple' | 'ocean-blue' | 'forest-green' | 'rose-pink' | 'teal-breeze';
 
 interface ThemeContextType {
   theme: LightTheme | DarkTheme;
   themeMode: ThemeMode;
+  colorScheme: ColorSchemeId;
   isDark: boolean;
-  setThemeMode: (mode: ThemeMode) => void;
+  setThemeMode: (mode: ThemeMode) => Promise<void>;
+  setColorScheme: (scheme: ColorSchemeId) => Promise<void>;
   toggleTheme: () => void;
 }
 
@@ -19,6 +23,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const systemColorScheme = useColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+  const [colorScheme, setColorSchemeState] = useState<ColorSchemeId>('sunset-orange');
   // Initialize with system preference immediately
   const [isDark, setIsDark] = useState(systemColorScheme === 'dark');
 
@@ -26,6 +31,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => {
     const loadTheme = async () => {
       const savedTheme = await storage.getItem(STORAGE_KEYS.THEME);
+      const savedColorScheme = await storage.getItem(STORAGE_KEYS.COLOR_SCHEME);
+      
       if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark' || savedTheme === 'system')) {
         setThemeModeState(savedTheme as ThemeMode);
         // Update isDark immediately based on saved preference
@@ -36,6 +43,17 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         } else {
           setIsDark(systemColorScheme === 'dark');
         }
+      }
+      
+      if (savedColorScheme && [
+        'sunset-orange',
+        'royal-purple',
+        'ocean-blue',
+        'forest-green',
+        'rose-pink',
+        'teal-breeze'
+      ].includes(savedColorScheme)) {
+        setColorSchemeState(savedColorScheme as ColorSchemeId);
       }
     };
     loadTheme();
@@ -55,15 +73,25 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     await storage.setItem(STORAGE_KEYS.THEME, mode);
   };
 
+  const setColorScheme = async (scheme: ColorSchemeId) => {
+    setColorSchemeState(scheme);
+    await storage.setItem(STORAGE_KEYS.COLOR_SCHEME, scheme);
+  };
+
   const toggleTheme = () => {
     const newMode = themeMode === 'light' ? 'dark' : 'light';
     setThemeMode(newMode);
   };
 
-  const theme = isDark ? darkTheme : lightTheme;
+  const baseTheme = isDark ? darkTheme : lightTheme;
+  
+  // Apply color scheme to theme
+  const theme = useMemo(() => {
+    return createColorSchemeTheme(baseTheme, colorScheme);
+  }, [baseTheme, colorScheme, isDark]);
 
   return (
-    <ThemeContext.Provider value={{ theme, themeMode, isDark, setThemeMode, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, themeMode, colorScheme, isDark, setThemeMode, setColorScheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

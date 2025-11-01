@@ -27,7 +27,12 @@
   },
   "home": {
     "title": "विलेज मार्ट में आपका स्वागत है",
-    "subtitle": "आपका स्थानीय बाज़ार"
+    "subtitle": "आपका स्थानीय बाज़ार",
+    "greeting": "नमस्ते, {{name}}",
+    "searchPlaceholder": "उत्पाद खोजें...",
+    "categories": "श्रेणियां",
+    "featuredProducts": "विशेष उत्पाद",
+    "seeAll": "सभी देखें"
   },
   "products": {
     "title": "उत्पाद",

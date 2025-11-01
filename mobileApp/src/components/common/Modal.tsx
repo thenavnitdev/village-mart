@@ -33,25 +33,24 @@ const Modal: React.FC<ModalProps> = ({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.overlay}>
-          <TouchableWithoutFeedback>
-            <View style={styles.container}>
-              {(title || showCloseButton) && (
-                <View style={styles.header}>
-                  {title && <Text style={styles.title}>{title}</Text>}
-                  {showCloseButton && (
-                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                      <Text style={styles.closeIcon}>✕</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
+      <View style={styles.overlay}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={styles.overlayTouchable} />
+        </TouchableWithoutFeedback>
+        <View style={styles.container}>
+          {(title || showCloseButton) && (
+            <View style={styles.header}>
+              {title && <Text style={styles.title}>{title}</Text>}
+              {showCloseButton && (
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                  <Text style={styles.closeIcon}>✕</Text>
+                </TouchableOpacity>
               )}
-              <ScrollView style={styles.content}>{children}</ScrollView>
             </View>
-          </TouchableWithoutFeedback>
+          )}
+          <ScrollView style={styles.content} nestedScrollEnabled>{children}</ScrollView>
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </RNModal>
   );
 };
@@ -64,12 +63,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
+  overlayTouchable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   container: {
     backgroundColor: colors.background.light,
     borderRadius: 16,
     width: '100%',
     maxHeight: '80%',
     ...lightTheme.shadows.lg,
+    zIndex: 1,
   },
   header: {
     flexDirection: 'row',

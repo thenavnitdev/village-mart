@@ -1,0 +1,65 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "home": "Home",
+    "products": "Products",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "profile": "Profile",
+    "login": "Login",
+    "logout": "Logout",
+    "signup": "Sign Up",
+    "search": "Search",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "price": "Price",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "checkout": "Checkout",
+    "continueShopping": "Continue Shopping",
+    "remove": "Remove",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "empty": "Empty"
+  },
+  "home": {
+    "title": "Welcome to Village Mart",
+    "subtitle": "Your Local Marketplace"
+  },
+  "products": {
+    "title": "Products",
+    "noProducts": "No products found",
+    "outOfStock": "Out of Stock"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "itemCount": "{{count}} item",
+    "itemCount_plural": "{{count}} items"
+  },
+  "wishlist": {
+    "title": "Wishlist",
+    "empty": "Your wishlist is empty"
+  },
+  "profile": {
+    "title": "Profile",
+    "myOrders": "My Orders",
+    "settings": "Settings",
+    "addresses": "Addresses",
+    "accountSettings": "Account Settings",
+    "preferences": "Preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "selectLanguage": "Select Language",
+    "selectTheme": "Select Theme",
+    "english": "English",
+    "hindi": "हिन्दी"
+  }
+}
+

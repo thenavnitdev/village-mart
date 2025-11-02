@@ -19,6 +19,8 @@ import ProfileDetails from '../screens/Profile/ProfileDetails';
 import ManageAddress from '../screens/Profile/ManageAddress';
 import AppSettings from '../screens/Profile/AppSettings';
 import HelpSupport from '../screens/Profile/HelpSupport';
+import Orders from '../screens/Profile/Orders';
+import Rewards from '../screens/Profile/Rewards';
 
 export type RootTabParamList = {
   Home: undefined;
@@ -37,6 +39,8 @@ export type RootStackParamList = {
   ManageAddress: undefined;
   AppSettings: undefined;
   HelpSupport: undefined;
+  Orders: undefined;
+  Rewards: undefined;
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -197,6 +201,16 @@ const AppNavigator: React.FC = () => {
         <RootStack.Screen 
           name="HelpSupport" 
           component={HelpSupport}
+          options={{ headerShown: false }}
+        />
+        <RootStack.Screen 
+          name="Orders" 
+          component={Orders}
+          options={{ headerShown: false }}
+        />
+        <RootStack.Screen 
+          name="Rewards" 
+          component={Rewards}
           options={{ headerShown: false }}
         />
       </RootStack.Navigator>

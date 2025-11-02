@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
 } from 'react-native';
-import { colors, lightTheme } from '../../theme';
+import { useTheme } from '../../context/ThemeContext';
 import Button from './Button';
 
 interface ModalProps {
@@ -26,6 +26,8 @@ const Modal: React.FC<ModalProps> = ({
   children,
   showCloseButton = true,
 }) => {
+  const { theme } = useTheme();
+  
   return (
     <RNModal
       visible={visible}
@@ -37,13 +39,13 @@ const Modal: React.FC<ModalProps> = ({
         <TouchableWithoutFeedback onPress={onClose}>
           <View style={styles.overlayTouchable} />
         </TouchableWithoutFeedback>
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.colors.cardBackground, shadowColor: theme.colors.border }]}>
           {(title || showCloseButton) && (
-            <View style={styles.header}>
-              {title && <Text style={styles.title}>{title}</Text>}
+            <View style={[styles.header, { borderBottomColor: theme.colors.border }]}>
+              {title && <Text style={[styles.title, { color: theme.colors.text }]}>{title}</Text>}
               {showCloseButton && (
                 <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                  <Text style={styles.closeIcon}>✕</Text>
+                  <Text style={[styles.closeIcon, { color: theme.colors.textMuted }]}>✕</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -71,11 +73,13 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   container: {
-    backgroundColor: colors.background.light,
     borderRadius: 16,
     width: '100%',
     maxHeight: '80%',
-    ...lightTheme.shadows.lg,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
     zIndex: 1,
   },
   header: {
@@ -84,19 +88,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
   },
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color: colors.text.primary,
   },
   closeButton: {
     padding: 4,
   },
   closeIcon: {
     fontSize: 24,
-    color: colors.text.muted,
   },
   content: {
     padding: 20,

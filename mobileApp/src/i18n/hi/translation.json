@@ -63,7 +63,10 @@
     "selectLanguage": "भाषा चुनें",
     "selectTheme": "थीम चुनें",
     "english": "English",
-    "hindi": "हिन्दी"
+    "hindi": "हिन्दी",
+    "logout": "लॉगआउट",
+    "logoutConfirm": "क्या आप वाकई लॉगआउट करना चाहते हैं?",
+    "cancel": "रद्द करें"
   }
 }
 

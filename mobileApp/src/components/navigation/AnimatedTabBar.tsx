@@ -297,7 +297,7 @@ const TabButton: React.FC<TabButtonProps> = ({
               style={[
                 styles.urlIcon,
                 {
-                  tintColor: isFocused ? theme.colors.primary : '#9CA3AF',
+                  tintColor: isFocused ? theme.colors.primary : theme.colors.textMuted,
                   opacity: isFocused ? 1 : 0.6,
                 },
                 animatedStyle,
@@ -308,7 +308,7 @@ const TabButton: React.FC<TabButtonProps> = ({
               style={[
                 styles.label,
                 {
-                  color: isFocused ? theme.colors.primary : '#6B7280',
+                  color: isFocused ? theme.colors.primary : theme.colors.textMuted,
                 },
                 textAnimatedStyle,
               ]}
@@ -335,7 +335,7 @@ const TabButton: React.FC<TabButtonProps> = ({
             isFocused={isFocused}
             routeName={route.name}
             color={theme.colors.primary}
-            inactiveColor="#6B7280"
+            inactiveColor={theme.colors.textMuted}
             badgeCount={badgeCount}
           />
         ) : (
@@ -345,7 +345,7 @@ const TabButton: React.FC<TabButtonProps> = ({
               style={[
                 styles.label,
                 {
-                  color: isFocused ? theme.colors.primary : '#6B7280',
+                  color: isFocused ? theme.colors.primary : theme.colors.textMuted,
                 },
                 textAnimatedStyle,
               ]}
@@ -387,8 +387,8 @@ const AnimatedTabBar: React.FC<BottomTabBarProps> = ({
       style={[
         styles.container,
         {
-          backgroundColor: '#FFFFFF', // White background
-          borderTopColor: '#E5E7EB', // Light gray separator
+          backgroundColor: theme.colors.cardBackground,
+          borderTopColor: theme.colors.border,
           paddingBottom: Math.max(insets.bottom, 8),
         },
       ]}

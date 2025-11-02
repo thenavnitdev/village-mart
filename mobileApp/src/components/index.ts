@@ -14,6 +14,7 @@ export { default as Divider } from './common/Divider';
 export { default as PriceTag } from './common/PriceTag';
 export { default as SettingRow } from './common/SettingRow';
 export { default as Modal } from './common/Modal';
+export { default as DialogModal } from './common/DialogModal';
 export { default as ProductCard } from './Product/ProductCard';
 export { default as Skeleton, ProductCardSkeleton, ProductListSkeleton } from './Loading/Skeleton';
 

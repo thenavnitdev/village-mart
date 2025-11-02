@@ -8,11 +8,15 @@ import { useTheme } from '../../context/ThemeContext';
 import { colors } from '../../theme';
 import SettingRow from '../../components/common/SettingRow';
 import Modal from '../../components/common/Modal';
+import DialogModal from '../../components/common/DialogModal';
 import ThemeCustomizationModal from '../../components/Modal/ThemeCustomizationModal';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { changeLanguage } from '../../i18n';
-import { useAppSelector } from '../../store/hooks';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { clearCredentials } from '../../store/slices/authSlice';
+import { storage } from '../../utils/storage';
+import { STORAGE_KEYS } from '../../constants';
 import { RootStackParamList } from '../../navigation/AppNavigator';
 
 type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList>;
@@ -23,6 +27,7 @@ const Profile: React.FC = () => {
   const { t, i18n } = useTranslation();
   const { theme, themeMode, setThemeMode } = useTheme();
   const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { items: wishlistItems } = useAppSelector((state) => state.wishlist);
   
@@ -33,6 +38,7 @@ const Profile: React.FC = () => {
   const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase() || 'PS';
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
   const [themeModalVisible, setThemeModalVisible] = useState(false);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('en');
 
   useEffect(() => {
@@ -87,6 +93,35 @@ const Profile: React.FC = () => {
     return themeOption ? `${themeOption.icon} ${themeOption.name}` : 'System';
   };
 
+  const handleLogout = () => {
+    setLogoutModalVisible(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+      // Clear credentials from Redux store
+      dispatch(clearCredentials());
+      
+      // Remove auth token from AsyncStorage
+      await storage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      
+      // Remove user data from AsyncStorage if stored
+      await storage.removeItem(STORAGE_KEYS.USER_DATA);
+      
+      // Close modal
+      setLogoutModalVisible(false);
+      
+      // Navigate to Auth screen
+      navigation.navigate('Auth');
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Even if there's an error, clear credentials and navigate
+      dispatch(clearCredentials());
+      setLogoutModalVisible(false);
+      navigation.navigate('Auth');
+    }
+  };
+
   // Mock user data
   const userStats = {
     totalOrders: 47,
@@ -134,20 +169,44 @@ const Profile: React.FC = () => {
 
       {/* Action Buttons */}
       <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.actionButtonsContainer}>
-        <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.background }]}>
-          <Text style={styles.actionIcon}>🛒</Text>
+        <TouchableOpacity 
+          style={[styles.actionButton, { backgroundColor: theme.colors.cardBackground }]}
+          onPress={() => navigation.navigate('Orders')}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.iconWrapper, { backgroundColor: '#DBEAFE' }]}>
+            <Text style={styles.actionIcon}>🛒</Text>
+          </View>
           <Text style={[styles.actionText, { color: theme.colors.text }]}>Reorder</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.primaryLight }]}>
-          <Text style={styles.actionIcon}>❤️</Text>
+        <TouchableOpacity 
+          style={[styles.actionButton, { backgroundColor: theme.colors.cardBackground }]}
+          onPress={() => (navigation as any).navigate('Main', { screen: 'Wishlist' })}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.iconWrapper, { backgroundColor: '#FEE2E2' }]}>
+            <Text style={styles.actionIcon}>❤️</Text>
+          </View>
           <Text style={[styles.actionText, { color: theme.colors.text }]}>Favorites</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.primaryLight }]}>
-          <Text style={styles.actionIcon}>🎁</Text>
+        <TouchableOpacity 
+          style={[styles.actionButton, { backgroundColor: theme.colors.cardBackground }]}
+          onPress={() => navigation.navigate('Rewards')}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.iconWrapper, { backgroundColor: '#FEF3C7' }]}>
+            <Text style={styles.actionIcon}>🎁</Text>
+          </View>
           <Text style={[styles.actionText, { color: theme.colors.text }]}>Rewards</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, { backgroundColor: theme.colors.primaryLight }]}>
-          <Text style={styles.actionIcon}>📞</Text>
+        <TouchableOpacity 
+          style={[styles.actionButton, { backgroundColor: theme.colors.cardBackground }]}
+          onPress={() => navigation.navigate('HelpSupport')}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.iconWrapper, { backgroundColor: '#F3F4F6' }]}>
+            <Text style={styles.actionIcon}>📞</Text>
+          </View>
           <Text style={[styles.actionText, { color: theme.colors.text }]}>Support</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -203,7 +262,7 @@ const Profile: React.FC = () => {
               onPress={() => setThemeModalVisible(true)}
               showArrow
             />
-            <View style={styles.settingRow}>
+            <View style={[styles.settingRow, { borderBottomColor: theme.colors.border }]}>
               <View style={styles.settingLeft}>
                 <Text style={styles.settingIcon}>🔔</Text>
                 <Text style={[styles.settingTitle, { color: theme.colors.text }]}>Notifications</Text>
@@ -245,7 +304,7 @@ const Profile: React.FC = () => {
               <SettingRow
                 title="Logout"
                 icon="🚪"
-                onPress={() => {}}
+                onPress={handleLogout}
                 showArrow
                 textColor="#EF4444"
               />
@@ -266,8 +325,10 @@ const Profile: React.FC = () => {
             activeOpacity={0.7}
             style={[
               styles.optionItem,
-              currentLanguage === lang.code && {
-                backgroundColor: theme.colors.primaryLight || '#FEF3E2',
+              {
+                backgroundColor: currentLanguage === lang.code 
+                  ? theme.colors.primaryLight 
+                  : theme.colors.cardBackground,
               },
             ]}
             onPress={() => {
@@ -299,6 +360,29 @@ const Profile: React.FC = () => {
       <ThemeCustomizationModal
         visible={themeModalVisible}
         onClose={() => setThemeModalVisible(false)}
+      />
+
+      {/* Logout Confirmation Modal */}
+      <DialogModal
+        visible={logoutModalVisible}
+        onClose={() => setLogoutModalVisible(false)}
+        type="warning"
+        title={t('profile.logout') || 'Logout'}
+        message={t('profile.logoutConfirm') || 'Are you sure you want to logout?'}
+        buttons={[
+          {
+            text: t('profile.cancel') || 'Cancel',
+            onPress: () => setLogoutModalVisible(false),
+            variant: 'outline',
+          },
+          {
+            text: t('profile.logout') || 'Logout',
+            onPress: confirmLogout,
+            variant: 'primary',
+            style: 'destructive',
+          },
+        ]}
+        cancelable={true}
       />
     </ScrollView>
   );
@@ -414,9 +498,16 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  actionIcon: {
-    fontSize: 28,
+  iconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 8,
+  },
+  actionIcon: {
+    fontSize: 24,
   },
   actionText: {
     fontSize: 12,
@@ -444,7 +535,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
   },
   settingLeft: {
     flexDirection: 'row',
@@ -482,7 +572,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     marginBottom: 8,
-    backgroundColor: colors.neutral[50],
   },
   optionIcon: {
     fontSize: 24,

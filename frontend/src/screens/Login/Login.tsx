@@ -7,8 +7,7 @@ import {
   Eye, 
   EyeOff,
   User,
-  ArrowRight,
-  CheckCircle
+  ArrowRight
 } from 'lucide-react';
 
 const Login: React.FC = () => {

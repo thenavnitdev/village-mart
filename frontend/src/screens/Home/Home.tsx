@@ -8,9 +8,7 @@ import {
   ShoppingCart, 
   ArrowRight,
   Clock,
-  Award,
-  Users,
-  Zap
+  Award
 } from 'lucide-react';
 
 const Home: React.FC = () => {

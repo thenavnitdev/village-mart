@@ -4,7 +4,6 @@ import {
   Star, 
   Heart, 
   ShoppingCart, 
-  Filter, 
   Search,
   Grid,
   List,

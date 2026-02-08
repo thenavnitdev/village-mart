@@ -2,16 +2,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
-  Mail, 
-  Phone, 
-  MapPin, 
   Edit3, 
   Save, 
   X,
   Camera,
   Package,
   Heart,
-  CreditCard,
   Settings,
   LogOut,
   Bell,

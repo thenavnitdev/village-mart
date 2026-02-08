@@ -1,0 +1,72 @@
+{
+  "common": {
+    "welcome": "स्वागत है",
+    "home": "होम",
+    "products": "उत्पाद",
+    "cart": "कार्ट",
+    "wishlist": "विशलिस्ट",
+    "profile": "प्रोफ़ाइल",
+    "login": "लॉगिन",
+    "logout": "लॉगआउट",
+    "signup": "साइन अप",
+    "search": "खोजें",
+    "addToCart": "कार्ट में जोड़ें",
+    "buyNow": "अभी खरीदें",
+    "price": "कीमत",
+    "total": "कुल",
+    "subtotal": "उप-योग",
+    "checkout": "चेकआउट",
+    "continueShopping": "खरीदारी जारी रखें",
+    "remove": "हटाएं",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफल",
+    "empty": "खाली"
+  },
+  "home": {
+    "title": "विलेज मार्ट में आपका स्वागत है",
+    "subtitle": "आपका स्थानीय बाज़ार",
+    "greeting": "नमस्ते, {{name}}",
+    "searchPlaceholder": "उत्पाद खोजें...",
+    "categories": "श्रेणियां",
+    "featuredProducts": "विशेष उत्पाद",
+    "seeAll": "सभी देखें"
+  },
+  "products": {
+    "title": "उत्पाद",
+    "noProducts": "कोई उत्पाद नहीं मिला",
+    "outOfStock": "स्टॉक में नहीं"
+  },
+  "cart": {
+    "title": "शॉपिंग कार्ट",
+    "empty": "आपकी कार्ट खाली है",
+    "itemCount": "{{count}} आइटम"
+  },
+  "wishlist": {
+    "title": "विशलिस्ट",
+    "empty": "आपकी विशलिस्ट खाली है"
+  },
+  "profile": {
+    "title": "प्रोफ़ाइल",
+    "myOrders": "मेरे ऑर्डर",
+    "settings": "सेटिंग्स",
+    "addresses": "पते",
+    "accountSettings": "खाता सेटिंग्स",
+    "preferences": "प्राथमिकताएं",
+    "language": "भाषा",
+    "theme": "थीम",
+    "light": "लाइट",
+    "dark": "डार्क",
+    "system": "सिस्टम",
+    "selectLanguage": "भाषा चुनें",
+    "selectTheme": "थीम चुनें",
+    "english": "English",
+    "hindi": "हिन्दी",
+    "logout": "लॉगआउट",
+    "logoutConfirm": "क्या आप वाकई लॉगआउट करना चाहते हैं?",
+    "cancel": "रद्द करें"
+  }
+}
+

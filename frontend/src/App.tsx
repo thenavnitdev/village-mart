@@ -19,8 +19,8 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [cartCount, setCartCount] = useState(3);
-  const [wishlistCount, setWishlistCount] = useState(5);
+  const [cartCount] = useState(3);
+  const [wishlistCount] = useState(5);
 
   const handleThemeToggle = () => {
     setIsDarkMode(!isDarkMode);

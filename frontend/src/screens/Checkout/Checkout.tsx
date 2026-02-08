@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   CreditCard, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  User,
-  Lock,
+  Phone,
   Check,
   ArrowLeft,
   Truck,

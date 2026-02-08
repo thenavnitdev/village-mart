@@ -7,7 +7,6 @@ import {
   Heart, 
   ShoppingBag,
   ArrowLeft,
-  CreditCard,
   Truck,
   Shield,
   Gift

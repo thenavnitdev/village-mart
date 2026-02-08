@@ -15,10 +15,10 @@ const LayoutTest: React.FC = () => {
             </div>
             
             <nav className="hidden lg:flex items-center space-x-8">
-              <a href="#" className="text-gray-700 hover:text-orange-600 transition-colors">Home</a>
-              <a href="#" className="text-gray-700 hover:text-orange-600 transition-colors">Products</a>
-              <a href="#" className="text-gray-700 hover:text-orange-600 transition-colors">About</a>
-              <a href="#" className="text-gray-700 hover:text-orange-600 transition-colors">Contact</a>
+              <a href="/" className="text-gray-700 hover:text-orange-600 transition-colors">Home</a>
+              <a href="/products" className="text-gray-700 hover:text-orange-600 transition-colors">Products</a>
+              <a href="/about" className="text-gray-700 hover:text-orange-600 transition-colors">About</a>
+              <a href="/" className="text-gray-700 hover:text-orange-600 transition-colors">Contact</a>
             </nav>
             
             <div className="flex items-center space-x-4">
@@ -137,10 +137,10 @@ const LayoutTest: React.FC = () => {
               Your trusted destination for authentic Indian namkeens and sweets.
             </p>
             <div className="flex justify-center space-x-6">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Facebook</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Twitter</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">Instagram</a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">YouTube</a>
+              <a href="https://facebook.com" rel="noopener noreferrer" target="_blank" className="text-gray-400 hover:text-white transition-colors">Facebook</a>
+              <a href="https://twitter.com" rel="noopener noreferrer" target="_blank" className="text-gray-400 hover:text-white transition-colors">Twitter</a>
+              <a href="https://instagram.com" rel="noopener noreferrer" target="_blank" className="text-gray-400 hover:text-white transition-colors">Instagram</a>
+              <a href="https://youtube.com" rel="noopener noreferrer" target="_blank" className="text-gray-400 hover:text-white transition-colors">YouTube</a>
             </div>
             <p className="text-gray-400 mt-6">© 2024 NamkeenMart. All rights reserved.</p>
           </div>
